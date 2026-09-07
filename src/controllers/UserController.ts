@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from "express";
 import * as UserService from "../services/UserService";
-import { IUser } from "../models/User"; // Import the interface
+import { IUser } from "../models/User";
 import jwt from "jsonwebtoken";
 import { config } from "../config/db";
 import { uploadImage } from "../services/cloudinaryService";
@@ -12,7 +12,6 @@ export const getTest = (req: Request, res: Response, next: NextFunction) => {
   });
 };
 
-// NEW: Create User Controller
 export const postUser = async (
   req: Request,
   res: Response,
@@ -32,7 +31,6 @@ export const postUser = async (
       data: newUser,
     });
   } catch (error: any) {
-    // If MongoDB returns an error (like duplicate email), it goes to your error middleware
     next(error);
   }
 };

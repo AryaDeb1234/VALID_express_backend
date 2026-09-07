@@ -78,7 +78,6 @@ const normalizeImageExtractedFields = (payload: InspectionPayload) => {
       const val = source[field];
       if (val == null) return [field, null];
       
-      // Extract string value safely without stringifying full objects
       const extractedText = typeof val === 'object' ? (val.text ?? val.value ?? '') : val;
       return [field, String(extractedText)];
     })

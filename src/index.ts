@@ -35,7 +35,7 @@ app.use('/user', userRoutes);
 //app.use('/api/v1/inspections', inspectionRoutes);
 app.use('/inspections', inspectionRoutes);
 
-// 3. Fallback for 404 (Route not found)
+
 app.use((req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
