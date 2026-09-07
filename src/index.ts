@@ -1,4 +1,5 @@
 import express from 'express';
+import cors from 'cors';
 import { config } from './config/db';
 import userRoutes from './routes/User_route';
 import inspectionRoutes from './routes/Inspection_route';
@@ -12,7 +13,7 @@ app.get('/', (req, res) => {
 }
 );
  
-// 1. Database Connection Function
+
 export const connectDB = async () => {
   try {
     await mongoose.connect(config.dbUrl, { 
@@ -27,7 +28,13 @@ export const connectDB = async () => {
   }
 };
  
-// Middleware
+app.use(cors({
+  origin: [
+    "http://localhost:3000"
+  ],
+  allowedHeaders: ["Content-Type", "Authorization"],
+  credentials: true
+}));
 app.use(express.json());
 
 // Routes 
@@ -40,7 +47,7 @@ app.use((req, res) => {
   res.status(404).json({ success: false, message: "Route not found" });
 });
  
-// Error Handling (Must be last)
+
 app.use(errorHandler); 
 
 const startServer = async () => {
