@@ -106,7 +106,7 @@ export const processInspection = async (
   }
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 60_000);
+  const timeout = setTimeout(() => controller.abort(), 120_000);
 
   try {
     const response = await fetch(`${config.pythonServiceUrl}/extract-product`, {
