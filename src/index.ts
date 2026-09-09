@@ -30,7 +30,8 @@ export const connectDB = async () => {
  
 app.use(cors({
   origin: [
-    "http://localhost:3000"
+    "http://localhost:3000",
+    "https://valid-liart.vercel.app"
   ],
   allowedHeaders: ["Content-Type", "Authorization"],
   credentials: true
