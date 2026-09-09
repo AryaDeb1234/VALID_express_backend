@@ -3,6 +3,7 @@ import mongoose, { Schema } from 'mongoose';
 export type InspectionStatus = 'PROCESSING' | 'COMPLIANT' | 'NON-COMPLIANT' | 'REVIEW';
 export type OverlayType = 'VALID' | 'VIOLATION' | 'REVIEW';
 export type RuleSeverity = 'INFO' | 'WARNING' | 'ERROR';
+export type ReviewSeverity = 'INFO' | 'WARNING' | 'ERROR' | 'UNASSIGNED';
 export type ImageType = 'front' | 'back' | 'side';
 
 export interface IInspectionMetadata {
@@ -71,6 +72,17 @@ export interface IRuleResult {
   field?: string | null;
 }
 
+export interface IReviewRequired {
+  rule_id: string;
+  rule_name: string;
+  category: string;
+  status: 'REVIEW';
+  message: string;
+  severity: ReviewSeverity;
+  violation_code: string;
+  evidence: Record<string, unknown>;
+}
+
 export interface ICanvasOverlay {
   image_type?: ImageType;
   bbox: number[]; // normalized [x_min, y_min, x_max, y_max]
@@ -99,6 +111,7 @@ export interface IInspection {
   complianceScore?: number | null;
   status: InspectionStatus;
   ruleResults?: IRuleResult[];
+  review_required?: IReviewRequired[];
   canvasOverlays?: ICanvasOverlay[];
   violations?: IViolation[];
   createdAt?: Date;
@@ -169,6 +182,21 @@ const ruleResultSchema = new Schema<IRuleResult>({
   field: { type: String, default: null }
 }, { _id: false });
 
+const reviewRequiredSchema = new Schema<IReviewRequired>({
+  rule_id: { type: String, required: true },
+  rule_name: { type: String, required: true },
+  category: { type: String, required: true },
+  status: { type: String, enum: ['REVIEW'], required: true },
+  message: { type: String, required: true },
+  severity: {
+    type: String,
+    enum: ['INFO', 'WARNING', 'ERROR', 'UNASSIGNED'],
+    required: true
+  },
+  violation_code: { type: String, default: '' },
+  evidence: { type: Schema.Types.Mixed, required: true, default: {} }
+}, { _id: false });
+
 const canvasOverlaySchema = new Schema<ICanvasOverlay>({
   image_type: { type: String, enum: ['front', 'back', 'side'], required: false },
   bbox: {
@@ -229,6 +257,7 @@ const inspectionSchema = new Schema<IInspection>({
     default: 'PROCESSING'
   },
   ruleResults: [ruleResultSchema],
+  review_required: { type: [reviewRequiredSchema], default: [] },
   canvasOverlays: [canvasOverlaySchema],
   violations: [violationSchema],
   

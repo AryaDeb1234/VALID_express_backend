@@ -23,6 +23,8 @@ export interface PythonInspectionResponse {
   images?: Record<string, unknown>;
   merged_fields?: Record<string, unknown>;
   ruleResults?: unknown[];
+  review_required?: unknown[];
+  reviewRequired?: unknown[];
   canvasOverlays?: unknown[];
   violations?: unknown[];
   complianceScore?: number;

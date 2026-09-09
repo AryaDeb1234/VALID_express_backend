@@ -5,6 +5,7 @@ import Inspection, {
   IInspection,
   IInspectionMetadata,
   IRuleResult,
+  IReviewRequired,
   InspectionStatus,
   OverlayType,
 } from '../models/Inspection';
@@ -111,6 +112,20 @@ const normalizeRuleResults = (payload: InspectionPayload): IRuleResult[] =>
       field: rule.field == null ? null : String(rule.field),
     };
   });
+
+const normalizeReviewRequired = (payload: InspectionPayload): IReviewRequired[] =>
+  (payload.review_required ?? payload.reviewRequired ?? []).map((review: any) => ({
+    rule_id: String(review.rule_id ?? review.ruleId ?? ''),
+    rule_name: String(review.rule_name ?? review.ruleName ?? ''),
+    category: String(review.category ?? ''),
+    status: 'REVIEW',
+    message: String(review.message ?? ''),
+    severity: ['INFO', 'WARNING', 'ERROR', 'UNASSIGNED'].includes(review.severity)
+      ? review.severity
+      : 'UNASSIGNED',
+    violation_code: String(review.violation_code ?? review.violationCode ?? ''),
+    evidence: review.evidence && typeof review.evidence === 'object' ? review.evidence : {},
+  }));
 
 const normalizeOverlays = (payload: InspectionPayload) =>
   (payload.canvasOverlays ?? payload.canvas_overlays ?? payload.overlays ?? []).map((overlay: any) => {
@@ -219,15 +234,13 @@ export const scanInspection = async (
         );
     const extractedPayload = compliance;
     const score = Number(compliance.complianceScore ?? compliance.compliance_score ?? compliance.score ?? 0);
-    const normalizedStatus = compliance.status === 'NON_COMPLIANT' ? 'NON-COMPLIANT' : compliance.status;
-    const status: InspectionStatus = ['PROCESSING', 'COMPLIANT', 'NON-COMPLIANT', 'REVIEW'].includes(normalizedStatus)
-      ? normalizedStatus
-      : score >= 70
-        ? 'COMPLIANT'
-        : 'NON-COMPLIANT';
+    const status: InspectionStatus = compliance.status === 'NON_COMPLIANT'
+      ? 'NON-COMPLIANT'
+      : compliance.status as InspectionStatus;
 
     const extractedImages = extractedPayload.images ?? {};
     const ruleResults = normalizeRuleResults(compliance);
+    const reviewRequired = normalizeReviewRequired(compliance);
     const inspection = await Inspection.create({
       _id: inspectionObjectId,
       officerId: new mongoose.Types.ObjectId(req.userId),
@@ -245,6 +258,7 @@ export const scanInspection = async (
       complianceScore: score,
       status,
       ruleResults,
+      review_required: reviewRequired,
       canvasOverlays: normalizeOverlays(compliance),
       violations: violationsFromRuleResults(ruleResults),
     });
