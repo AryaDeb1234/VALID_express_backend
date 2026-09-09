@@ -13,6 +13,14 @@ export interface IInspectionMetadata {
   pdp_area_cm2?: number | null;
 }
 
+export interface IInspectionSummary {
+  total_rules: number;
+  passed: number;
+  violations: number;
+  review_required: number;
+  not_applicable: number;
+}
+
 export interface IFieldSource {
   image?: string | null;
   filename?: string | null;
@@ -110,6 +118,7 @@ export interface IInspection {
   };
   complianceScore?: number | null;
   status: InspectionStatus;
+  summary?: IInspectionSummary;
   ruleResults?: IRuleResult[];
   review_required?: IReviewRequired[];
   canvasOverlays?: ICanvasOverlay[];
@@ -220,6 +229,14 @@ const violationSchema = new Schema<IViolation>({
   }
 }, { _id: false });
 
+const inspectionSummarySchema = new Schema<IInspectionSummary>({
+  total_rules: { type: Number, default: 0, min: 0 },
+  passed: { type: Number, default: 0, min: 0 },
+  violations: { type: Number, default: 0, min: 0 },
+  review_required: { type: Number, default: 0, min: 0 },
+  not_applicable: { type: Number, default: 0, min: 0 }
+}, { _id: false });
+
 
 
 
@@ -256,6 +273,7 @@ const inspectionSchema = new Schema<IInspection>({
     enum: ['PROCESSING', 'COMPLIANT', 'NON-COMPLIANT', 'REVIEW'],
     default: 'PROCESSING'
   },
+  summary: { type: inspectionSummarySchema, default: () => ({}) },
   ruleResults: [ruleResultSchema],
   review_required: { type: [reviewRequiredSchema], default: [] },
   canvasOverlays: [canvasOverlaySchema],

@@ -4,6 +4,7 @@ import Inspection, {
   IExtractedField,
   IInspection,
   IInspectionMetadata,
+  IInspectionSummary,
   IRuleResult,
   IReviewRequired,
   InspectionStatus,
@@ -152,6 +153,20 @@ const normalizeMetadata = (body: InspectionPayload): IInspectionMetadata => ({
     : Number(body.pdp_area_cm2 ?? body.pdpAreaCm2),
 });
 
+const normalizeSummary = (payload: InspectionPayload): IInspectionSummary => {
+  const summary = payload.summary && typeof payload.summary === 'object'
+    ? payload.summary as Record<string, unknown>
+    : {};
+
+  return {
+    total_rules: Number(summary.total_rules ?? summary.totalRules ?? 0),
+    passed: Number(summary.passed ?? 0),
+    violations: Number(summary.violations ?? 0),
+    review_required: Number(summary.review_required ?? summary.reviewRequired ?? 0),
+    not_applicable: Number(summary.not_applicable ?? summary.notApplicable ?? 0),
+  };
+};
+
 const violationsFromRuleResults = (ruleResults: ReturnType<typeof normalizeRuleResults>) =>
   ruleResults
     .filter((rule) => !rule.passed)
@@ -257,6 +272,7 @@ export const scanInspection = async (
       merged_fields: normalizeMergedFields(extractedPayload),
       complianceScore: score,
       status,
+      summary: normalizeSummary(compliance),
       ruleResults,
       review_required: reviewRequired,
       canvasOverlays: normalizeOverlays(compliance),

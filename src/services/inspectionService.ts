@@ -22,6 +22,7 @@ export interface PythonInspectionResponse {
   metadata?: InspectionMetadataPayload;
   images?: Record<string, unknown>;
   merged_fields?: Record<string, unknown>;
+  summary?: Record<string, unknown>;
   ruleResults?: unknown[];
   review_required?: unknown[];
   reviewRequired?: unknown[];
@@ -65,6 +66,13 @@ export const createMockInspectionResult = () => ({
   image_dimensions: { width: 1920, height: 1080 },
   complianceScore: 100,
   status: 'COMPLIANT',
+  summary: {
+    total_rules: 1,
+    passed: 1,
+    violations: 0,
+    review_required: 0,
+    not_applicable: 0,
+  },
   ruleResults: [
     { ruleCode: 'IMAGES_RECEIVED', ruleName: 'Required product images received', passed: true, severity: 'INFO', issue: null, field: null },
   ],
