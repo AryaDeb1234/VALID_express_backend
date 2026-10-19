@@ -3,7 +3,7 @@ dotenv.config();
 
 export const config = {
   port: process.env.PORT || 3000,
-  dbUrl: process.env.DATABASE_URL || 'mongodb://localhost:27017/test',
+  //dbUrl: process.env.DATABASE_URL || 'mongodb://localhost:27017/test',
   nodeEnv: process.env.NODE_ENV || 'development',
   jwtSecret: process.env.JWT_SECRET || 'development-secret-change-me',
   pythonServiceUrl: process.env.PYTHON_SERVICE_URL || 'http://localhost:8000',
